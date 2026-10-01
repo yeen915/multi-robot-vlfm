@@ -1,0 +1,1155 @@
+{
+ "eval": [
+  {
+   "episode_id": "0",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "6",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "10",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "17",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "21",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "24",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "26",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "35",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "41",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "52",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "61",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "92",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "95",
+   "scene": "4ok3usBNeis"
+  },
+  {
+   "episode_id": "4",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "10",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "30",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "34",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "35",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "40",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "45",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "48",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "60",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "64",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "65",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "69",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "75",
+   "scene": "5cdEh9F2hJL"
+  },
+  {
+   "episode_id": "12",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "13",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "22",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "24",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "40",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "41",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "43",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "50",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "55",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "72",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "78",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "79",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "96",
+   "scene": "6s7QHgap2fW"
+  },
+  {
+   "episode_id": "3",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "11",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "17",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "21",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "34",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "51",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "54",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "59",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "71",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "72",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "74",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "80",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "88",
+   "scene": "DYehNKdT76V"
+  },
+  {
+   "episode_id": "0",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "24",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "30",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "37",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "42",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "49",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "51",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "57",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "76",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "80",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "86",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "90",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "95",
+   "scene": "Dd4bFSTQ8gi"
+  },
+  {
+   "episode_id": "16",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "17",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "20",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "21",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "41",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "49",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "51",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "55",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "56",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "60",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "64",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "67",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "74",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "78",
+   "scene": "TEEsavR23oF"
+  },
+  {
+   "episode_id": "1",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "4",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "25",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "36",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "60",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "61",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "67",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "68",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "72",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "82",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "89",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "90",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "94",
+   "scene": "XB4GS9ShBRE"
+  },
+  {
+   "episode_id": "16",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "17",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "20",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "33",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "37",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "41",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "50",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "57",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "66",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "76",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "77",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "90",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "95",
+   "scene": "mL8ThkuaVTM"
+  },
+  {
+   "episode_id": "14",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "15",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "22",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "28",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "34",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "40",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "49",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "59",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "63",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "72",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "74",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "80",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "83",
+   "scene": "mv2HUxq3B53"
+  },
+  {
+   "episode_id": "15",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "22",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "23",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "27",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "31",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "38",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "56",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "66",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "80",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "85",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "93",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "94",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "95",
+   "scene": "q3zU7Yy5E5s"
+  },
+  {
+   "episode_id": "5",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "8",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "16",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "26",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "30",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "38",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "39",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "48",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "60",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "70",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "75",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "91",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "92",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "98",
+   "scene": "qyAac8rV8Zk"
+  },
+  {
+   "episode_id": "0",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "19",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "23",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "26",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "37",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "42",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "51",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "52",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "68",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "71",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "85",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "90",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "98",
+   "scene": "svBbv1Pavdk"
+  },
+  {
+   "episode_id": "0",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "6",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "10",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "13",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "16",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "26",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "35",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "38",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "62",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "69",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "77",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "79",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "82",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "84",
+   "scene": "wcojb4TFT35"
+  },
+  {
+   "episode_id": "4",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "9",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "12",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "20",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "21",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "29",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "37",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "38",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "39",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "44",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "50",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "59",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "67",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "81",
+   "scene": "ziup5kvtCCR"
+  },
+  {
+   "episode_id": "1",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "40",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "50",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "71",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "77",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "80",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "83",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "85",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "86",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "101",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "104",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "105",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "115",
+   "scene": "zt1RVoi7PcG"
+  },
+  {
+   "episode_id": "117",
+   "scene": "zt1RVoi7PcG"
+  }
+ ],
+ "meta": {
+  "dist_bins": [
+   2.0,
+   4.0,
+   6.0,
+   8.0,
+   10.0
+  ],
+  "eval_scenes": [
+   "4ok3usBNeis",
+   "5cdEh9F2hJL",
+   "6s7QHgap2fW",
+   "DYehNKdT76V",
+   "Dd4bFSTQ8gi",
+   "TEEsavR23oF",
+   "XB4GS9ShBRE",
+   "mL8ThkuaVTM",
+   "mv2HUxq3B53",
+   "q3zU7Yy5E5s",
+   "qyAac8rV8Zk",
+   "svBbv1Pavdk",
+   "wcojb4TFT35",
+   "ziup5kvtCCR",
+   "zt1RVoi7PcG"
+  ],
+  "seed": 0,
+  "starts_file": "data/multi_robot/hm3d_val_robot2_starts.json.gz",
+  "tune_scenes": [
+   "Nfvxx8J5NCo",
+   "QaLdnwvtxbs",
+   "bxsVRursffK",
+   "cvZr5TUy5C5",
+   "p53SfW6mjZe"
+  ]
+ },
+ "summary": {
+  "all_with_r2_start": {
+   "episodes_per_scene": {
+    "4ok3usBNeis": 93,
+    "5cdEh9F2hJL": 99,
+    "6s7QHgap2fW": 96,
+    "DYehNKdT76V": 89,
+    "Dd4bFSTQ8gi": 99,
+    "Nfvxx8J5NCo": 99,
+    "QaLdnwvtxbs": 99,
+    "TEEsavR23oF": 93,
+    "XB4GS9ShBRE": 89,
+    "bxsVRursffK": 90,
+    "cvZr5TUy5C5": 95,
+    "mL8ThkuaVTM": 81,
+    "mv2HUxq3B53": 99,
+    "p53SfW6mjZe": 90,
+    "q3zU7Yy5E5s": 91,
+    "qyAac8rV8Zk": 85,
+    "svBbv1Pavdk": 87,
+    "wcojb4TFT35": 80,
+    "ziup5kvtCCR": 99,
+    "zt1RVoi7PcG": 110
+   },
+   "goal_same_floor_frac": 0.8234031132581857,
+   "l1_mean": 7.778988457852259,
+   "l2_mean": 7.573143574606649,
+   "num_episodes": 1863,
+   "num_scenes": 20,
+   "object_category": {
+    "bed": 397,
+    "chair": 394,
+    "plant": 68,
+    "sofa": 353,
+    "toilet": 380,
+    "tv_monitor": 271
+   },
+   "r1_r2_dist_bins": [
+    640,
+    455,
+    410,
+    358
+   ],
+   "r2_closer_frac": 0.5453569511540526
+  },
+  "eval": {
+   "episodes_per_scene": {
+    "4ok3usBNeis": 13,
+    "5cdEh9F2hJL": 13,
+    "6s7QHgap2fW": 13,
+    "DYehNKdT76V": 13,
+    "Dd4bFSTQ8gi": 13,
+    "TEEsavR23oF": 14,
+    "XB4GS9ShBRE": 13,
+    "mL8ThkuaVTM": 13,
+    "mv2HUxq3B53": 13,
+    "q3zU7Yy5E5s": 13,
+    "qyAac8rV8Zk": 14,
+    "svBbv1Pavdk": 13,
+    "wcojb4TFT35": 14,
+    "ziup5kvtCCR": 14,
+    "zt1RVoi7PcG": 14
+   },
+   "goal_same_floor_frac": 0.81,
+   "l1_mean": 7.477107926607132,
+   "l2_mean": 7.668843069076538,
+   "num_episodes": 200,
+   "num_scenes": 15,
+   "object_category": {
+    "bed": 48,
+    "chair": 36,
+    "plant": 9,
+    "sofa": 34,
+    "toilet": 42,
+    "tv_monitor": 31
+   },
+   "r1_r2_dist_bins": [
+    50,
+    50,
+    51,
+    49
+   ],
+   "r2_closer_frac": 0.475
+  },
+  "tune": {
+   "episodes_per_scene": {
+    "Nfvxx8J5NCo": 10,
+    "QaLdnwvtxbs": 10,
+    "bxsVRursffK": 10,
+    "cvZr5TUy5C5": 10,
+    "p53SfW6mjZe": 10
+   },
+   "goal_same_floor_frac": 0.86,
+   "l1_mean": 7.530437688827515,
+   "l2_mean": 7.570459380149841,
+   "num_episodes": 50,
+   "num_scenes": 5,
+   "object_category": {
+    "bed": 14,
+    "chair": 12,
+    "plant": 3,
+    "sofa": 7,
+    "toilet": 7,
+    "tv_monitor": 7
+   },
+   "r1_r2_dist_bins": [
+    13,
+    12,
+    13,
+    12
+   ],
+   "r2_closer_frac": 0.44
+  }
+ },
+ "tune": [
+  {
+   "episode_id": "13",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "17",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "19",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "32",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "52",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "54",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "58",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "69",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "84",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "97",
+   "scene": "Nfvxx8J5NCo"
+  },
+  {
+   "episode_id": "0",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "6",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "10",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "14",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "24",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "35",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "45",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "83",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "88",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "91",
+   "scene": "QaLdnwvtxbs"
+  },
+  {
+   "episode_id": "3",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "12",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "22",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "23",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "42",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "61",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "66",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "81",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "89",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "95",
+   "scene": "bxsVRursffK"
+  },
+  {
+   "episode_id": "9",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "23",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "31",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "37",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "45",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "48",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "52",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "54",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "71",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "87",
+   "scene": "cvZr5TUy5C5"
+  },
+  {
+   "episode_id": "3",
+   "scene": "p53SfW6mjZe"
+  },
+  {
+   "episode_id": "27",
+   "scene": "p53SfW6mjZe"
+  },
+  {
+   "episode_id": "36",
+   "scene": "p53SfW6mjZe"
+  },
+  {
+   "episode_id": "40",
+   "scene": "p53SfW6mjZe"
+  },
+  {
+   "episode_id": "63",
+   "scene": "p53SfW6mjZe"
+  },
+  {
+   "episode_id": "66",
+   "scene": "p53SfW6mjZe"
+  },
+  {
+   "episode_id": "73",
+   "scene": "p53SfW6mjZe"
+  },
+  {
+   "episode_id": "80",
+   "scene": "p53SfW6mjZe"
+  },
+  {
+   "episode_id": "82",
+   "scene": "p53SfW6mjZe"
+  },
+  {
+   "episode_id": "90",
+   "scene": "p53SfW6mjZe"
+  }
+ ]
+}
