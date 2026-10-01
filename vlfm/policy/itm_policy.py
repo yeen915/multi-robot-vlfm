@@ -41,6 +41,7 @@ class BaseITMPolicy(BaseObjectNavPolicy):
         text_prompt: str,
         use_max_confidence: bool = True,
         sync_explored_areas: bool = False,
+        fix_acyclic_enforcer: bool = False,
         *args: Any,
         **kwargs: Any,
     ):
@@ -52,12 +53,13 @@ class BaseITMPolicy(BaseObjectNavPolicy):
             use_max_confidence=use_max_confidence,
             obstacle_map=self._obstacle_map if sync_explored_areas else None,
         )
-        self._acyclic_enforcer = AcyclicEnforcer()
+        self._fix_acyclic_enforcer = fix_acyclic_enforcer
+        self._acyclic_enforcer = AcyclicEnforcer(fix=fix_acyclic_enforcer)
 
     def _reset(self) -> None:
         super()._reset()
         self._value_map.reset()
-        self._acyclic_enforcer = AcyclicEnforcer()
+        self._acyclic_enforcer = AcyclicEnforcer(fix=self._fix_acyclic_enforcer)
         self._last_value = float("-inf")
         self._last_frontier = np.zeros(2)
 

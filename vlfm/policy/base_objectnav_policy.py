@@ -187,6 +187,7 @@ class BaseObjectNavPolicy(BasePolicy):
             "target_point_cloud": target_point_cloud,
             "nav_goal": self._last_goal,
             "stop_called": self._called_stop,
+            "num_steps": self._num_steps + 1,
             # don't render these on egocentric images when making videos:
             "render_below_images": [
                 "target_object",
@@ -390,6 +391,7 @@ class VLFMConfig:
     coco_threshold: float = 0.8
     non_coco_threshold: float = 0.4
     agent_radius: float = 0.18
+    fix_acyclic_enforcer: bool = False
 
     @classmethod  # type: ignore
     @property

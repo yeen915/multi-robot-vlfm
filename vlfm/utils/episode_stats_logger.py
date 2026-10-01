@@ -34,6 +34,7 @@ def log_episode_stats(episode_id: int, scene_id: str, infos: Dict) -> str:
         data = {
             "failure_cause": failure_cause,
             **remove_numpy_arrays(infos_no_map),
+            "nav_goal": np.asarray(infos["nav_goal"]).tolist(),
         }
 
         log_episode(episode_id, scene, data)
