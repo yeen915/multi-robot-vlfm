@@ -186,3 +186,17 @@ habitat-lab/
 GroundingDINO/
 __pycache__/
 *.pyc
+
+# Local data, weights and run outputs (not tracked)
+/data/datasets/
+/data/scene_datasets/
+/data/versioned_data/
+/data/dummy_policy.pth
+/data/groundingdino_swint_ogc.pth
+/data/mobile_sam.pt
+/data/yolov7-e6e.pt
+/traced_model.pt
+/yolov7/
+/outputs/
+/tb/
+/video_dir/
