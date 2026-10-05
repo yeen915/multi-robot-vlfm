@@ -20,10 +20,12 @@ from hydra.plugins.search_path_plugin import SearchPathPlugin
 from omegaconf import DictConfig
 
 import vlfm.measurements.traveled_stairs  # noqa: F401
+import vlfm.multi_robot.dataset  # noqa: F401
 import vlfm.multi_robot.task  # noqa: F401
 import vlfm.obs_transformers.resize  # noqa: F401
 import vlfm.policy.action_replay_policy  # noqa: F401
 import vlfm.policy.habitat_policies  # noqa: F401
+import vlfm.policy.multi_robot_policy  # noqa: F401
 import vlfm.utils.vlfm_trainer  # noqa: F401
 
 

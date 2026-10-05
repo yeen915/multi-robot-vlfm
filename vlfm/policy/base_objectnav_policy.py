@@ -15,6 +15,7 @@ from vlfm.mapping.obstacle_map import ObstacleMap
 from vlfm.obs_transformers.utils import image_resize
 from vlfm.policy.utils.pointnav_policy import WrappedPointNavResNetPolicy
 from vlfm.utils.geometry_utils import get_fov, rho_theta
+from vlfm.utils.hw_corruption import is_corrupted_index_error
 from vlfm.vlm.blip2 import BLIP2Client
 from vlfm.vlm.coco_classes import COCO_CLASSES
 from vlfm.vlm.grounding_dino import GroundingDINOClient, ObjectDetections
@@ -81,6 +82,7 @@ class BaseObjectNavPolicy(BasePolicy):
         self._last_goal = np.zeros(2)
         self._done_initializing = False
         self._called_stop = False
+        self._hw_corruption = False
         self._compute_frontiers = compute_frontiers
         if compute_frontiers:
             self._obstacle_map = ObstacleMap(
@@ -99,6 +101,7 @@ class BaseObjectNavPolicy(BasePolicy):
         self._num_steps = 0
         self._done_initializing = False
         self._called_stop = False
+        self._hw_corruption = False
         if self._compute_frontiers:
             self._obstacle_map.reset()
         self._did_reset = True
@@ -158,7 +161,13 @@ class BaseObjectNavPolicy(BasePolicy):
             self._cache_observations(observations)
         except IndexError as e:
             print(e)
-            print("Reached edge of map, stopping.")
+            if is_corrupted_index_error(e):
+                # Not a real map overflow: flag the episode so that it gets rerun
+                print("Corrupted index, ending the episode.")
+                self._hw_corruption = True
+                self._policy_info = {**self._policy_info, "hw_corruption": True}
+            else:
+                print("Reached edge of map, stopping.")
             raise StopIteration
         self._policy_info = {}
 
@@ -187,6 +196,7 @@ class BaseObjectNavPolicy(BasePolicy):
             "target_point_cloud": target_point_cloud,
             "nav_goal": self._last_goal,
             "stop_called": self._called_stop,
+            "hw_corruption": self._hw_corruption,
             "num_steps": self._num_steps + 1,
             # don't render these on egocentric images when making videos:
             "render_below_images": [
@@ -392,6 +402,10 @@ class VLFMConfig:
     non_coco_threshold: float = 0.4
     agent_radius: float = 0.18
     fix_acyclic_enforcer: bool = False
+    # Only read by HabitatMultiRobotITMPolicy:
+    num_robots: int = 1
+    map_sharing: str = "independent"  # "independent" or "shared"
+    assigner: str = "vlfm"  # "vlfm", "independent_utility", "greedy" or "joint"
 
     @classmethod  # type: ignore
     @property

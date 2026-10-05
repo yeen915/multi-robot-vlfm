@@ -1,6 +1,6 @@
 # Copyright (c) 2023 Boston Dynamics AI Institute LLC. All rights reserved.
 
-from typing import Dict, Union
+from typing import Any, Dict, Union
 
 import cv2
 import numpy as np
@@ -21,10 +21,19 @@ class ObjectPointCloudMap:
     def __init__(self, erosion_size: float) -> None:
         self._erosion_size = erosion_size
         self.last_target_coord: Union[np.ndarray, None] = None
+        # The map draws random numbers (to subsample clouds and to tag detections)
+        # from its own generator rather than numpy's global one, so that nothing else
+        # (visualization, another robot's map) changes what it draws.
+        self._rng = np.random.RandomState(0)
 
     def reset(self) -> None:
         self.clouds = {}
         self.last_target_coord = None
+
+    def seed(self, seed: Any) -> None:
+        """Restarts the map's random generator. Seeding it at the start of an episode
+        makes the episode reproducible regardless of what ran before it."""
+        self._rng = np.random.RandomState(seed)
 
     def has_object(self, target_class: str) -> bool:
         return target_class in self.clouds and len(self.clouds[target_class]) > 0
@@ -49,7 +58,7 @@ class ObjectPointCloudMap:
         # assign a random number to the last column of its point cloud that can later
         # be used to identify which points came from the same detection.
         if too_offset(object_mask):
-            within_range = np.ones_like(local_cloud[:, 0]) * np.random.rand()
+            within_range = np.ones_like(local_cloud[:, 0]) * self._rng.rand()
         else:
             # Mark all points of local_cloud whose distance from the camera is too far
             # as being out of range
@@ -58,7 +67,7 @@ class ObjectPointCloudMap:
             # values of 0 will be considered out of range; these 0s need to be
             # assigned with a random number so that they can be identified later.
             within_range = within_range.astype(np.float32)
-            within_range[within_range == 0] = np.random.rand()
+            within_range[within_range == 0] = self._rng.rand()
         global_cloud = transform_points(tf_camera_to_episodic, local_cloud)
         global_cloud = np.concatenate((global_cloud, within_range[:, None]), axis=1)
 
@@ -156,7 +165,7 @@ class ObjectPointCloudMap:
         valid_depth[valid_depth == 0] = 1  # set all holes (0) to just be far (1)
         valid_depth = valid_depth * (max_depth - min_depth) + min_depth
         cloud = get_point_cloud(valid_depth, final_mask, fx, fy)
-        cloud = get_random_subarray(cloud, 5000)
+        cloud = get_random_subarray(cloud, 5000, self._rng)
         if self.use_dbscan:
             cloud = open3d_dbscan_filtering(cloud)
 
@@ -245,7 +254,7 @@ def visualize_and_save_point_cloud(point_cloud: np.ndarray, save_path: str) -> N
     plt.close()
 
 
-def get_random_subarray(points: np.ndarray, size: int) -> np.ndarray:
+def get_random_subarray(points: np.ndarray, size: int, rng: np.random.RandomState) -> np.ndarray:
     """
     This function returns a subarray of a given 3D points array. The size of the
     subarray is specified by the user. The elements of the subarray are randomly
@@ -256,13 +265,14 @@ def get_random_subarray(points: np.ndarray, size: int) -> np.ndarray:
         points (numpy array): A numpy array of 3D points. Each element of the array is a
             3D point represented as a numpy array of size 3.
         size (int): The desired size of the subarray.
+        rng (np.random.RandomState): The random generator to draw from.
 
     Returns:
         numpy array: A subarray of the original points array.
     """
     if len(points) <= size:
         return points
-    indices = np.random.choice(len(points), size, replace=False)
+    indices = rng.choice(len(points), size, replace=False)
     return points[indices]
 
 

@@ -1,14 +1,14 @@
 # @package _global_
 
 # Two-robot ObjectNav on HM3D: the single-robot experiment plus the two-robot task,
-# its sensor and its measures. See docs/multi_robot_design.md.
+# its sensor, its measures and the two-robot policy. See docs/multi_robot_design.md.
 #
-# NOTE: the policy is still the single-robot HabitatITMPolicyV2, which does not keep
-# per-robot state. Do not use this config for results until the two-robot policy is in.
+# The defaults below are the "two independent VLFM" baseline.
 
 defaults:
   - vlfm_objectnav_hm3d
   - /habitat/task/lab_sensors@habitat.task.lab_sensors.active_robot_id: active_robot_id
+  - /habitat/task/lab_sensors@habitat.task.lab_sensors.episode_seed: episode_seed
   - /habitat/task/measurements@habitat.task.measurements.team_spl: team_spl
   - /habitat/task/measurements@habitat.task.measurements.team_spl_l1: team_spl_l1
   - /habitat/task/measurements@habitat.task.measurements.winner_spl: winner_spl
@@ -25,3 +25,11 @@ habitat:
       active_robot_id:
         num_robots: 2
         robot2_starts_path: data/multi_robot/hm3d_val_robot2_starts.json.gz
+
+habitat_baselines:
+  rl:
+    policy:
+      name: "HabitatMultiRobotITMPolicy"
+      num_robots: 2
+      map_sharing: "independent"
+      assigner: "vlfm"

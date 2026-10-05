@@ -18,6 +18,7 @@ task behaves exactly like ObjectNav-v1.
 import gzip
 import json
 import os
+import zlib
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
@@ -149,6 +150,36 @@ class ActiveRobotIdSensor(Sensor):
         return np.array([0 if team is None else team.active], dtype=np.int64)
 
 
+@registry.register_sensor
+class EpisodeSeedSensor(Sensor):
+    """A seed that depends only on the scene and the episode id.
+
+    VLFM draws random numbers when it subsamples object point clouds. The policy
+    reseeds each robot's generator from this value and the robot's index at the start
+    of every episode, so an episode's result does not depend on which episodes ran
+    before it in the same process.
+    """
+
+    cls_uuid: str = "episode_seed"
+
+    def _get_uuid(self, *args: Any, **kwargs: Any) -> str:
+        return self.cls_uuid
+
+    def _get_sensor_type(self, *args: Any, **kwargs: Any) -> SensorTypes:
+        return SensorTypes.MEASUREMENT
+
+    def _get_observation_space(self, *args: Any, **kwargs: Any) -> spaces.Box:
+        return spaces.Box(low=0, high=2**31 - 1, shape=(1,), dtype=np.int64)
+
+    def get_observation(self, *args: Any, episode: Episode, **kwargs: Any) -> np.ndarray:
+        return np.array([episode_seed(episode.scene_id, episode.episode_id)], dtype=np.int64)
+
+
+def episode_seed(scene_id: str, episode_id: Any) -> int:
+    scene = os.path.basename(scene_id).split(".")[0]
+    return zlib.crc32(f"{scene}_{episode_id}".encode()) % 2**31
+
+
 class _TeamSPLBase(Measure):
     """Shared code for the SPL variants; subclasses define cls_uuid and _compute."""
 
@@ -251,6 +282,11 @@ class ActiveRobotIdSensorConfig(LabSensorConfig):
 
 
 @dataclass
+class EpisodeSeedSensorConfig(LabSensorConfig):
+    type: str = EpisodeSeedSensor.__name__
+
+
+@dataclass
 class TeamSPLMeasurementConfig(MeasurementConfig):
     type: str = TeamSPL.__name__
 
@@ -276,6 +312,12 @@ cs.store(
     group="habitat/task/lab_sensors",
     name=ActiveRobotIdSensor.cls_uuid,
     node=ActiveRobotIdSensorConfig,
+)
+cs.store(
+    package=f"habitat.task.lab_sensors.{EpisodeSeedSensor.cls_uuid}",
+    group="habitat/task/lab_sensors",
+    name=EpisodeSeedSensor.cls_uuid,
+    node=EpisodeSeedSensorConfig,
 )
 for measure, measure_config in [
     (TeamSPL, TeamSPLMeasurementConfig),

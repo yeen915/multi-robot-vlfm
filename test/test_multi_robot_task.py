@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import quaternion
 
-from vlfm.multi_robot.task import MultiRobotObjectNavTask, MultiRobotStats, TeamSPL
+from vlfm.multi_robot.task import MultiRobotObjectNavTask, MultiRobotStats, TeamSPL, episode_seed
 
 IDENTITY = [0.0, 0.0, 0.0, 1.0]
 R1_START = [0.0, 0.0, 0.0]
@@ -181,3 +181,11 @@ def test_measures_read_the_team_state() -> None:
     assert stats["path_length_r2"] == pytest.approx(0.0)
     assert stats["start_goal_distance_r2"] == pytest.approx(4.0)
     assert stats["min_robot_distance"] == pytest.approx(4.75)
+
+
+def test_episode_seed_depends_only_on_scene_and_episode() -> None:
+    seed = episode_seed("data/scene_datasets/hm3d/val/00000-scene/scene.basis.glb", "7")
+    assert seed == episode_seed("other/prefix/scene.basis.glb", 7)
+    assert seed != episode_seed("other/prefix/scene.basis.glb", "8")
+    assert seed != episode_seed("other/prefix/scene2.basis.glb", "7")
+    assert 0 <= seed < 2**31
