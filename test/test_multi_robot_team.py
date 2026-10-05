@@ -94,3 +94,13 @@ def test_single_robot_spl_variants_agree() -> None:
     team.path_lengths = [10.0]
     team.stopper = 0
     assert team_spl(1.0, team) == team_spl(1.0, team, use_r1_start=True) == winner_spl(1.0, team) == 0.5
+
+
+def test_team_steps_count_time_and_total_actions_count_every_action() -> None:
+    team = two_robot_team()
+    for _ in range(6):  # three joint steps: R1, R2, R1, R2, R1, R2
+        team.record_action(team.poses[team.active], stopped=False)
+    team.record_action(team.poses[0], stopped=True)  # R1 starts a fourth and stops
+    assert team.num_actions == [4, 3]
+    assert team.joint_steps == 4
+    assert team.total_actions == 7

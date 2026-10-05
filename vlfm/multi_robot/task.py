@@ -257,7 +257,8 @@ class MultiRobotStats(Measure):
     def update_metric(self, *args: Any, task: Any, **kwargs: Any) -> None:
         team: RobotTeam = task.team
         stats: Dict[str, float] = {
-            "joint_steps": team.joint_steps,
+            "joint_steps": team.joint_steps,  # team steps: elapsed time
+            "total_actions": team.total_actions,  # all robots' actions added up
             "stopper": -1 if team.stopper is None else team.stopper,
             "num_close_steps": team.num_close_steps,
         }

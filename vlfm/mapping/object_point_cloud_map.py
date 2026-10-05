@@ -35,6 +35,11 @@ class ObjectPointCloudMap:
         makes the episode reproducible regardless of what ran before it."""
         self._rng = np.random.RandomState(seed)
 
+    def use_rng(self, rng: np.random.RandomState) -> None:
+        """Draws from `rng` from now on. When robots share this map, each robot's
+        updates draw from that robot's own generator."""
+        self._rng = rng
+
     def has_object(self, target_class: str) -> bool:
         return target_class in self.clouds and len(self.clouds[target_class]) > 0
 

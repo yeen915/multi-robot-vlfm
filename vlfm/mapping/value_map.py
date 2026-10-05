@@ -35,8 +35,6 @@ class ValueMap(BaseMap):
     are with respect to finding and navigating to the target object."""
 
     _confidence_masks: Dict[Tuple[float, float], np.ndarray] = {}
-    _camera_positions: List[np.ndarray] = []
-    _last_camera_yaw: float = 0.0
     _min_confidence: float = 0.25
     _decision_threshold: float = 0.35
     _map: np.ndarray
@@ -206,11 +204,7 @@ class ValueMap(BaseMap):
         # Revert all values that were originally zero to white
         map_img[zero_mask] = (255, 255, 255)
         if len(self._camera_positions) > 0:
-            self._traj_vis.draw_trajectory(
-                map_img,
-                self._camera_positions,
-                self._last_camera_yaw,
-            )
+            self._draw_trajectories(map_img)
 
             if markers is not None:
                 for pos, marker_kwargs in markers:

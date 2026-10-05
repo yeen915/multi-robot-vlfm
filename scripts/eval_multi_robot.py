@@ -56,6 +56,9 @@ METHODS: Dict[str, List[str]] = {
     "joint": TWO_ROBOTS + ["habitat_baselines.rl.policy.map_sharing=shared", "habitat_baselines.rl.policy.assigner=joint"],
     "greedy": TWO_ROBOTS + ["habitat_baselines.rl.policy.map_sharing=shared", "habitat_baselines.rl.policy.assigner=greedy"],
     "shared_vlfm": TWO_ROBOTS + ["habitat_baselines.rl.policy.map_sharing=shared", "habitat_baselines.rl.policy.assigner=vlfm"],
+    # Diagnostic: shared obstacle and value maps, but each robot its own object map
+    "shared_maps_only": TWO_ROBOTS
+    + ["habitat_baselines.rl.policy.map_sharing=shared_maps_only", "habitat_baselines.rl.policy.assigner=vlfm"],
 }
 
 

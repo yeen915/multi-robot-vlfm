@@ -58,7 +58,8 @@ class BaseITMPolicy(BaseObjectNavPolicy):
 
     def _reset(self) -> None:
         super()._reset()
-        self._value_map.reset()
+        if self._resets_maps:
+            self._value_map.reset()
         self._acyclic_enforcer = AcyclicEnforcer(fix=self._fix_acyclic_enforcer)
         self._last_value = float("-inf")
         self._last_frontier = np.zeros(2)
@@ -210,6 +211,7 @@ class BaseITMPolicy(BaseObjectNavPolicy):
         self._value_map.update_agent_traj(
             self._observations_cache["robot_xy"],
             self._observations_cache["robot_heading"],
+            self._robot_id,
         )
 
     def _sort_frontiers_by_value(

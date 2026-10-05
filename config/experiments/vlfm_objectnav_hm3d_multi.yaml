@@ -31,5 +31,6 @@ habitat_baselines:
     policy:
       name: "HabitatMultiRobotITMPolicy"
       num_robots: 2
-      map_sharing: "independent"
+      map_sharing: "independent"  # or "shared", "shared_maps_only"
       assigner: "vlfm"
+      target_claim_timeout: 50

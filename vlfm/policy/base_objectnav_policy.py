@@ -40,6 +40,11 @@ class BaseObjectNavPolicy(BasePolicy):
     _observations_cache: Dict[str, Any] = {}
     _non_coco_caption = ""
     _load_yolo: bool = True
+    # Set by HabitatMultiRobotITMPolicy. The robot's index (it labels the robot's
+    # trajectory on the maps), and whether the policy clears its maps when an episode
+    # starts; when robots share maps, the multi-robot policy clears them once instead.
+    _robot_id: int = 0
+    _resets_maps: bool = True
 
     def __init__(
         self,
@@ -96,13 +101,14 @@ class BaseObjectNavPolicy(BasePolicy):
     def _reset(self) -> None:
         self._target_object = ""
         self._pointnav_policy.reset()
-        self._object_map.reset()
+        if self._resets_maps:
+            self._object_map.reset()
         self._last_goal = np.zeros(2)
         self._num_steps = 0
         self._done_initializing = False
         self._called_stop = False
         self._hw_corruption = False
-        if self._compute_frontiers:
+        if self._compute_frontiers and self._resets_maps:
             self._obstacle_map.reset()
         self._did_reset = True
 
@@ -404,8 +410,13 @@ class VLFMConfig:
     fix_acyclic_enforcer: bool = False
     # Only read by HabitatMultiRobotITMPolicy:
     num_robots: int = 1
-    map_sharing: str = "independent"  # "independent" or "shared"
+    # "independent", "shared" (obstacle, value and object maps) or "shared_maps_only"
+    # (obstacle and value maps; each robot keeps its own object map)
+    map_sharing: str = "independent"
     assigner: str = "vlfm"  # "vlfm", "independent_utility", "greedy" or "joint"
+    # With a shared object map: steps without progress before the robot navigating to
+    # the target hands it over (design doc 3.5)
+    target_claim_timeout: int = 50
 
     @classmethod  # type: ignore
     @property

@@ -43,8 +43,14 @@ class RobotTeam:
 
     @property
     def joint_steps(self) -> int:
-        """Number of joint steps started so far (the first action starts step 1)."""
+        """Number of joint steps started so far (the first action starts step 1). In
+        a joint step every robot acts once, so this is the team's elapsed time."""
         return max(self.num_actions)
+
+    @property
+    def total_actions(self) -> int:
+        """Number of actions taken by all the robots together."""
+        return sum(self.num_actions)
 
     def record_action(self, new_pose: RobotPose, stopped: bool) -> Optional[int]:
         """Stores the outcome of the active robot's action.

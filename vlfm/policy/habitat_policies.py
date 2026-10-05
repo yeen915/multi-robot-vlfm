@@ -200,7 +200,7 @@ class HabitatMixin:
                 self._camera_fov,
             )
             frontiers = self._obstacle_map.frontiers
-            self._obstacle_map.update_agent_traj(robot_xy, camera_yaw)
+            self._obstacle_map.update_agent_traj(robot_xy, camera_yaw, self._robot_id)
         else:
             if "frontier_sensor" in observations:
                 frontiers = observations["frontier_sensor"][0].cpu().numpy()

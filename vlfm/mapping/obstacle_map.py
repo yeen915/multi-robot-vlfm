@@ -1,6 +1,6 @@
 # Copyright (c) 2023 Boston Dynamics AI Institute LLC. All rights reserved.
 
-from typing import Any, Union
+from typing import Any, List, Sequence, Union
 
 import cv2
 import numpy as np
@@ -21,6 +21,8 @@ class ObstacleMap(BaseMap):
     _frontiers_px: np.ndarray = np.array([])
     frontiers: np.ndarray = np.array([])
     radius_padding_color: tuple = (100, 100, 100)
+    # (x, y) positions of the other robots that update this map; empty for one robot
+    teammate_positions: List[np.ndarray] = []
 
     def __init__(
         self,
@@ -51,6 +53,7 @@ class ObstacleMap(BaseMap):
         self.explored_area.fill(0)
         self._frontiers_px = np.array([])
         self.frontiers = np.array([])
+        self.teammate_positions = []
 
     def update_map(
         self,
@@ -125,25 +128,12 @@ class ObstacleMap(BaseMap):
         new_explored_area = cv2.dilate(new_explored_area, np.ones((3, 3), np.uint8), iterations=1)
         self.explored_area[new_explored_area > 0] = 1
         self.explored_area[self._navigable_map == 0] = 0
-        contours, _ = cv2.findContours(
-            self.explored_area.astype(np.uint8),
-            cv2.RETR_EXTERNAL,
-            cv2.CHAIN_APPROX_SIMPLE,
-        )
-        if len(contours) > 1:
-            min_dist = np.inf
-            best_idx = 0
-            for idx, cnt in enumerate(contours):
-                dist = cv2.pointPolygonTest(cnt, tuple([int(i) for i in agent_pixel_location]), True)
-                if dist >= 0:
-                    best_idx = idx
-                    break
-                elif abs(dist) < min_dist:
-                    min_dist = abs(dist)
-                    best_idx = idx
-            new_area = np.zeros_like(self.explored_area, dtype=np.uint8)
-            cv2.drawContours(new_area, contours, best_idx, 1, -1)  # type: ignore
-            self.explored_area = new_area.astype(bool)
+        # Keep only the explored regions that some robot is in: this robot's, and those
+        # of teammates sharing the map
+        robot_pixels = [agent_pixel_location]
+        for teammate_xy in self.teammate_positions:
+            robot_pixels.append(self._xy_to_px(np.reshape(teammate_xy, (1, 2)))[0])
+        self.explored_area = keep_regions_with_robots(self.explored_area, robot_pixels)
 
         # Compute frontier locations
         self._frontiers_px = self._get_frontiers()
@@ -183,15 +173,41 @@ class ObstacleMap(BaseMap):
 
         vis_img = cv2.flip(vis_img, 0)
 
-        if len(self._camera_positions) > 0:
-            self._traj_vis.draw_trajectory(
-                vis_img,
-                self._camera_positions,
-                self._last_camera_yaw,
-            )
+        self._draw_trajectories(vis_img)
 
         return vis_img
 
 
 def filter_points_by_height(points: np.ndarray, min_height: float, max_height: float) -> np.ndarray:
     return points[(points[:, 2] >= min_height) & (points[:, 2] <= max_height)]
+
+
+def keep_regions_with_robots(explored_area: np.ndarray, robot_pixels: Sequence[np.ndarray]) -> np.ndarray:
+    """Returns the explored area restricted to the connected regions that contain a
+    robot. A robot that is in no region keeps the region nearest to it.
+
+    Args:
+        explored_area: Boolean map of the explored area.
+        robot_pixels: Pixel location (in the order used by _xy_to_px) of each robot.
+    """
+    contours, _ = cv2.findContours(
+        explored_area.astype(np.uint8),
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE,
+    )
+    if len(contours) <= 1:
+        return explored_area
+    new_area = np.zeros_like(explored_area, dtype=np.uint8)
+    for robot_pixel in robot_pixels:
+        min_dist = np.inf
+        best_idx = 0
+        for idx, cnt in enumerate(contours):
+            dist = cv2.pointPolygonTest(cnt, tuple([int(i) for i in robot_pixel]), True)
+            if dist >= 0:
+                best_idx = idx
+                break
+            elif abs(dist) < min_dist:
+                min_dist = abs(dist)
+                best_idx = idx
+        cv2.drawContours(new_area, contours, best_idx, 1, -1)  # type: ignore
+    return new_area.astype(bool)

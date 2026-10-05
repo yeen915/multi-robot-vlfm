@@ -50,7 +50,7 @@ def test_duplicates_are_a_fixed_sample() -> None:
 
 
 def test_every_method_has_overrides() -> None:
-    assert {"single", "independent", "shared_independent_utility", "joint", "greedy", "shared_vlfm"} == set(ev.METHODS)
+    assert {"single", "independent", "shared_independent_utility", "joint", "greedy", "shared_vlfm", "shared_maps_only"} == set(ev.METHODS)
 
 
 def test_flagged_results_are_set_aside_and_logged(tmp_path: Any) -> None:

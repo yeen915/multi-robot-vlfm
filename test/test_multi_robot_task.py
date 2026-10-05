@@ -176,6 +176,7 @@ def test_measures_read_the_team_state() -> None:
     stats_measure.update_metric(task=task)
     stats = stats_measure.get_metric()
     assert stats["joint_steps"] == 1
+    assert stats["total_actions"] == 2  # R1 moved, R2 stopped
     assert stats["stopper"] == 1
     assert stats["path_length_r1"] == pytest.approx(0.25)
     assert stats["path_length_r2"] == pytest.approx(0.0)
