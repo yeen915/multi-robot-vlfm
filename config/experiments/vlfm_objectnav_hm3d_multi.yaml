@@ -34,3 +34,10 @@ habitat_baselines:
       map_sharing: "independent"  # or "shared", "shared_maps_only"
       assigner: "vlfm"
       target_claim_timeout: 50
+      # Coordinator (assigner other than "vlfm"); provisional values, see VLFMConfig
+      lambda_path: 1.0
+      d_min: 2.0
+      hysteresis_tau: 0.1
+      value_scale: 0.13
+      path_scale: 40.0
+      unreachable_penalty: 3.0

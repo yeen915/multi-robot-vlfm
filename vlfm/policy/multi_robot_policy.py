@@ -5,6 +5,9 @@ The environment serves one robot per step and reports which one in the
 robot and routes each step to the active robot's policy. With shared maps, all the
 robots' policies use the first robot's maps.
 
+Frontier choice: with assigner "vlfm", every robot picks its frontiers by VLFM's own
+rule. With the other assigners (shared maps only), a Coordinator assigns them.
+
 Map sharing modes:
     independent: each robot has its own maps; the robots do not communicate.
     shared: one obstacle, value and object map for all; the robot closest to the
@@ -13,7 +16,8 @@ Map sharing modes:
         object map and goes to the target when it sees it itself.
 """
 
-from typing import Any, Dict, List, Optional, Union
+import os
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 import torch
@@ -24,6 +28,15 @@ from habitat_baselines.rl.ppo.policy import PolicyActionData
 from omegaconf import DictConfig
 from torch import Tensor
 
+from vlfm.multi_robot.coordinator import (
+    ASSIGNERS,
+    Coordinator,
+    CoordinatorConfig,
+    UtilityScaleLog,
+    match_frontier,
+    values_in_order,
+)
+from vlfm.multi_robot.path_cost import PathPlanner
 from vlfm.multi_robot.target_claim import TargetClaim
 from vlfm.multi_robot.task import ActiveRobotIdSensor, EpisodeSeedSensor
 from vlfm.multi_robot.team_stats import TeamStats
@@ -37,11 +50,42 @@ MAP_SHARING_MODES = ("independent", "shared", "shared_maps_only")
 
 
 class TeamMemberITMPolicy(HabitatITMPolicyV2):
-    """A robot's VLFM policy when the robots share their maps. The only difference to
-    the single-robot policy: if the object map is shared too, then once the target is
-    in it, only the robot that claims it navigates there; the others keep exploring."""
+    """A robot's VLFM policy when the robots share their maps. It differs from the
+    single-robot policy in two ways:
+    - If the object map is shared too, then once the target is in it, only the robot
+      that claims it navigates there; the others keep exploring.
+    - With a coordinator, the robot heads for the frontier the coordinator assigns it.
+      VLFM's own rule (sticking to the last frontier, avoiding cycles) is not used; the
+      coordinator's hysteresis takes its place.
+    """
 
-    _target_claim: Optional[TargetClaim] = None  # set by HabitatMultiRobotITMPolicy
+    # Set by HabitatMultiRobotITMPolicy
+    _target_claim: Optional[TargetClaim] = None
+    _coordinator: Optional[Coordinator] = None
+    # Teammates exploring now, and goals of the teammates that are not (set each step)
+    _team_status: Tuple[Set[int], Dict[int, np.ndarray]] = (set(), {})
+
+    def _explore(self, observations: TensorDict) -> Tensor:
+        if self._coordinator is None:
+            return super()._explore(observations)
+        frontiers = self._observations_cache["frontier_sensor"]
+        if np.array_equal(frontiers, np.zeros((1, 2))) or len(frontiers) == 0:
+            print("No frontiers found during exploration, stopping.")
+            return self._stop_action
+        values = values_in_order(*self._sort_frontiers_by_value(observations, frontiers), frontiers)
+        teammates_exploring, occupied = self._team_status
+        goal = self._coordinator.choose(
+            self._robot_id, frontiers, values, self._obstacle_map, teammates_exploring | {self._robot_id}, occupied
+        )
+        if goal is None:
+            # The only frontier went to a teammate: look around meanwhile
+            os.environ["DEBUG_INFO"] = "Only frontier taken by a teammate."
+            return TorchActionIDs.TURN_LEFT
+        index = match_frontier(goal, np.asarray(frontiers).reshape(-1, 2))
+        self._last_frontier = goal
+        self._last_value = float(values[index]) if index is not None else float("nan")
+        os.environ["DEBUG_INFO"] = f"Assigned frontier, value: {self._last_value * 100:.2f}%"
+        return self._pointnav(goal, stop=False)
 
     def _get_target_object_location(self, position: np.ndarray) -> Union[None, np.ndarray]:
         if self._target_claim is None:
@@ -67,6 +111,8 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
         map_sharing: str = "independent",
         target_claim_timeout: int = 50,
         stats_map_kwargs: Optional[Dict[str, Any]] = None,
+        coordinator_config: Optional[CoordinatorConfig] = None,
+        log_utility_scales: bool = False,
     ) -> None:
         """
         Args:
@@ -76,6 +122,10 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
             target_claim_timeout: See TargetClaim.
             stats_map_kwargs: ObstacleMap arguments for the team statistics (see
                 TeamStats); without them, no statistics are kept.
+            coordinator_config: Assigns frontiers when given (needs shared maps);
+                without it, each robot uses VLFM's rule.
+            log_utility_scales: Log the values and path costs of all frontiers at
+                each exploration step (see UtilityScaleLog).
         """
         super().__init__()
         if map_sharing not in MAP_SHARING_MODES:
@@ -89,6 +139,11 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
         self._rngs: Optional[List[np.random.RandomState]] = None
         self._target_claim = TargetClaim(target_claim_timeout)
         self._team_stats = None if stats_map_kwargs is None else TeamStats(len(robot_policies), stats_map_kwargs)
+        if coordinator_config is not None and not self._shared_maps:
+            raise ValueError("A coordinator needs shared maps")
+        self._coordinator = None if coordinator_config is None else Coordinator(coordinator_config)
+        self._unreachable_penalty = 3.0 if coordinator_config is None else coordinator_config.unreachable_penalty
+        self._scale_log = UtilityScaleLog() if log_utility_scales else None
 
         for robot_id, policy in enumerate(robot_policies):
             policy._robot_id = robot_id
@@ -102,12 +157,31 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
                 policy._target_claim = self._target_claim
                 if robot_id > 0:
                     policy._object_map = robot_policies[0]._object_map
+            if self._coordinator is not None:
+                policy._coordinator = self._coordinator
 
     @classmethod
     def from_config(cls, config: DictConfig, *args_unused: Any, **kwargs_unused: Any) -> "HabitatMultiRobotITMPolicy":
         policy_config = config.habitat_baselines.rl.policy
+        if policy_config.detector != "vlm":
+            raise NotImplementedError(f"detector={policy_config.detector} is planned for phase 6")
+        coordinator_config = None
         if policy_config.assigner != "vlfm":
-            raise NotImplementedError(f"assigner={policy_config.assigner} is not implemented yet")
+            if policy_config.assigner not in ASSIGNERS:
+                raise ValueError(f"Unknown assigner {policy_config.assigner!r}")
+            coordinator_config = CoordinatorConfig(
+                assigner=policy_config.assigner,
+                lambda_path=policy_config.lambda_path,
+                d_min=policy_config.d_min,
+                hysteresis_tau=policy_config.hysteresis_tau,
+                value_scale=policy_config.value_scale,
+                path_scale=policy_config.path_scale,
+                unreachable_penalty=policy_config.unreachable_penalty,
+                term_weights={
+                    "info_gain": policy_config.info_gain_weight,
+                    "trajectory_reuse": policy_config.trajectory_reuse_weight,
+                },
+            )
         robot_cls = TeamMemberITMPolicy if policy_config.map_sharing != "independent" else HabitatITMPolicyV2
         robot_policies = [robot_cls.from_config(config) for _ in range(policy_config.num_robots)]
         stats_map_kwargs = {
@@ -117,7 +191,14 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
             "area_thresh": policy_config.obstacle_map_area_threshold,
             "hole_area_thresh": policy_config.hole_area_thresh,
         }
-        return cls(robot_policies, policy_config.map_sharing, policy_config.target_claim_timeout, stats_map_kwargs)
+        return cls(
+            robot_policies,
+            policy_config.map_sharing,
+            policy_config.target_claim_timeout,
+            stats_map_kwargs,
+            coordinator_config,
+            policy_config.log_utility_scales,
+        )
 
     def act(
         self,
@@ -142,10 +223,17 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
         policy = self._robot_policies[robot]
         if self._rngs is not None:
             policy._object_map.use_rng(self._rngs[robot])
+        pose = None
         if "gps" in observations:
             # Habitat's GPS makes west negative; VLFM's frame has y pointing left
             x, y = observations["gps"][0].cpu().numpy()
             self._target_claim.positions[robot] = np.array([x, -y])
+            if "compass" in observations:
+                pose = (np.array([x, -y]), float(observations["compass"][0].cpu().item()))
+        if self._coordinator is not None:
+            if pose is not None:
+                self._coordinator.poses[robot] = pose
+            policy._team_status = self._team_status(robot)
         if self._shared_maps and policy._compute_frontiers:
             policy._obstacle_map.teammate_positions = [
                 xy for r, xy in sorted(self._target_claim.positions.items()) if r != robot
@@ -172,6 +260,8 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
         if self._team_stats is not None:
             mode = policy._last_mode
             self._team_stats.add_decision(robot, mode, policy._last_frontier if mode == "explore" else None)
+        if self._scale_log is not None and policy._last_mode == "explore" and pose is not None:
+            self._log_utility_scales(policy, pose)
         if action_data.policy_info:
             # Logged in the episode's JSON
             info = action_data.policy_info[0]
@@ -182,7 +272,35 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
             if self._team_stats is not None:
                 info["team_stats"] = self._team_stats.summary()
                 info["coverage_curve"] = self._team_stats.coverage_curve()
+            if self._coordinator is not None:
+                info["coordinator"] = dict(self._coordinator.stats)
+            if self._scale_log is not None:
+                info["utility_scales"] = self._scale_log.summary()
         return action_data
+
+    def _team_status(self, robot: int) -> Tuple[Set[int], Dict[int, np.ndarray]]:
+        """The teammates that explored in their last step, and the goals of those that
+        navigated to the target (which exploring robots keep away from). Teammates
+        that are turning in place at the start are neither."""
+        exploring, occupied = set(), {}
+        for other, policy in enumerate(self._robot_policies):
+            if other == robot:
+                continue
+            if policy._last_mode == "explore":
+                exploring.add(other)
+            elif policy._last_mode == "navigate":
+                occupied[other] = np.asarray(policy._last_goal, dtype=float)
+        return exploring, occupied
+
+    def _log_utility_scales(self, policy: Any, pose: Tuple[np.ndarray, float]) -> None:
+        """Values and path costs, from where the robot stood, of all the frontiers of
+        its (updated) obstacle map."""
+        frontiers = np.asarray(policy._obstacle_map.frontiers, dtype=float).reshape(-1, 2)
+        if len(frontiers) == 0:
+            return
+        values = values_in_order(*policy._value_map.sort_waypoints(frontiers, 0.5), frontiers)
+        costs = PathPlanner(policy._obstacle_map, self._unreachable_penalty).costs(pose[0], pose[1], list(frontiers))
+        self._scale_log.add(values, costs)
 
     def _add_view_to_stats(self, robot: int, policy: Any, observations: TensorDict) -> None:
         """Adds the robot's current view to the team statistics, with the same depth
@@ -214,6 +332,12 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
         self._needs_reset = [True] * num_robots
         self._gave_up = [False] * num_robots
         self._target_claim.reset()
+        for policy in self._robot_policies:
+            policy._last_mode = None  # not the previous episode's, for the teammates' view
+        if self._coordinator is not None:
+            self._coordinator.reset()
+        if self._scale_log is not None:
+            self._scale_log.reset()
         if self._team_stats is not None:
             self._team_stats.reset()
         if EpisodeSeedSensor.cls_uuid in observations:

@@ -419,6 +419,21 @@ class VLFMConfig:
     # With a shared object map: steps without progress before the robot navigating to
     # the target hands it over (design doc 3.5)
     target_claim_timeout: int = 50
+    # Coordinator for assigner != "vlfm" (design doc 3.4). The scales are provisional
+    # until measured on the tuning split (s_V: median value of the frontier VLFM picks,
+    # 0.133 over 3989 steps of single-robot logs; s_A: a typical 8 m path).
+    lambda_path: float = 1.0
+    d_min: float = 2.0  # meters, straight-line distance
+    hysteresis_tau: float = 0.1
+    value_scale: float = 0.13
+    path_scale: float = 40.0  # actions
+    unreachable_penalty: float = 3.0
+    info_gain_weight: float = 0.0  # reserved for phase 6
+    trajectory_reuse_weight: float = 0.0  # reserved for phase 6
+    # Log the values and path costs of all frontiers at each exploration step, to set
+    # value_scale and path_scale
+    log_utility_scales: bool = False
+    detector: str = "vlm"  # "vlm", or "gt" (reserved for phase 6)
 
     @classmethod  # type: ignore
     @property
