@@ -1,5 +1,8 @@
 """Builds fixed, scene-disjoint tuning and evaluation splits for the two-robot runs.
 
+A third split, dev, is a larger development set from the tuning scenes: the tuning
+episodes plus as many again, drawn the same way. It never touches evaluation scenes.
+
 Only episodes that have an R2 start (see generate_robot2_starts.py) are eligible.
 Scenes are split at random into tuning scenes and evaluation scenes. Within each
 split, episodes are spread evenly over the scenes, and within each scene they are
@@ -79,6 +82,7 @@ def main() -> None:
     parser.add_argument("--num-tune-scenes", type=int, default=5)
     parser.add_argument("--num-eval", type=int, default=200)
     parser.add_argument("--num-tune", type=int, default=50)
+    parser.add_argument("--num-dev", type=int, default=100, help="size of dev, which contains tune")
     args = parser.parse_args()
 
     with gzip.open(args.starts, "rt") as f:
@@ -93,6 +97,14 @@ def main() -> None:
         "tune": make_split(starts, tune_scenes, args.num_tune, rng),
         "eval": make_split(starts, eval_scenes, args.num_eval, rng),
     }
+    # Drawn after the other two, so that adding it left them unchanged
+    tune_set = set(splits["tune"])
+    not_in_tune = {
+        scene: {episode_id: s for episode_id, s in starts[scene].items() if (scene, episode_id) not in tune_set}
+        for scene in tune_scenes
+    }
+    extra = make_split(not_in_tune, tune_scenes, args.num_dev - args.num_tune, rng)
+    splits["dev"] = sorted(splits["tune"] + extra, key=lambda e: (e[0], int(e[1])))
     everything = [(scene, episode_id) for scene in scenes for episode_id in starts[scene]]
     summary = {name: describe(starts, split) for name, split in {**splits, "all_with_r2_start": everything}.items()}
 

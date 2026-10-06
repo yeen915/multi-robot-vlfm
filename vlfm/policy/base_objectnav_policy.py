@@ -45,6 +45,7 @@ class BaseObjectNavPolicy(BasePolicy):
     # starts; when robots share maps, the multi-robot policy clears them once instead.
     _robot_id: int = 0
     _resets_maps: bool = True
+    _last_mode: Union[str, None] = None  # "initialize", "explore" or "navigate"
 
     def __init__(
         self,
@@ -150,6 +151,7 @@ class BaseObjectNavPolicy(BasePolicy):
         if len(action_numpy) == 1:
             action_numpy = action_numpy[0]
         print(f"Step: {self._num_steps} | Mode: {mode} | Action: {action_numpy}")
+        self._last_mode = mode  # read by HabitatMultiRobotITMPolicy's statistics
         self._policy_info.update(self._get_policy_info(detections[0]))
         self._num_steps += 1
 

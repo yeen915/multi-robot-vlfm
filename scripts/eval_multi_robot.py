@@ -232,7 +232,7 @@ def check_duplicates(out_dir: str, duplicates: List[Episode], args: argparse.Nam
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--method", required=True, choices=sorted(METHODS))
-    parser.add_argument("--split", default="eval", choices=["eval", "tune"])
+    parser.add_argument("--split", default="eval", help="a split of the split file: eval, tune, dev, ...")
     parser.add_argument("--split-file", default="data/multi_robot/hm3d_val_splits.json")
     parser.add_argument("--config-name", default="experiments/vlfm_objectnav_hm3d_multi")
     parser.add_argument("--output-root", default="outputs/eval")
@@ -247,7 +247,10 @@ def main() -> None:
     args = parser.parse_args()
 
     with open(args.split_file) as f:
-        episodes: List[Episode] = [(entry["scene"], str(entry["episode_id"])) for entry in json.load(f)[args.split]]
+        splits = json.load(f)
+    if not isinstance(splits.get(args.split), list):
+        parser.error(f"{args.split_file} has no split {args.split!r}")
+    episodes: List[Episode] = [(entry["scene"], str(entry["episode_id"])) for entry in splits[args.split]]
     if args.limit is not None:
         episodes = episodes[: args.limit]
     out_dir = os.path.join(args.output_root, args.name or f"{args.method}_{args.split}")

@@ -13,10 +13,11 @@ Map sharing modes:
         object map and goes to the target when it sees it itself.
 """
 
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import torch
+from depth_camera_filtering import filter_depth
 from habitat_baselines.common.baseline_registry import baseline_registry
 from habitat_baselines.common.tensor_dict import TensorDict
 from habitat_baselines.rl.ppo.policy import PolicyActionData
@@ -25,8 +26,11 @@ from torch import Tensor
 
 from vlfm.multi_robot.target_claim import TargetClaim
 from vlfm.multi_robot.task import ActiveRobotIdSensor, EpisodeSeedSensor
+from vlfm.multi_robot.team_stats import TeamStats
 from vlfm.policy.base_policy import BasePolicy
 from vlfm.policy.habitat_policies import HabitatITMPolicyV2, TorchActionIDs
+from vlfm.utils.geometry_utils import xyz_yaw_to_tf_matrix
+from vlfm.utils.hw_corruption import is_corrupted_index_error
 
 
 MAP_SHARING_MODES = ("independent", "shared", "shared_maps_only")
@@ -58,7 +62,11 @@ class TeamMemberITMPolicy(HabitatITMPolicyV2):
 @baseline_registry.register_policy
 class HabitatMultiRobotITMPolicy(BasePolicy):
     def __init__(
-        self, robot_policies: List[Any], map_sharing: str = "independent", target_claim_timeout: int = 50
+        self,
+        robot_policies: List[Any],
+        map_sharing: str = "independent",
+        target_claim_timeout: int = 50,
+        stats_map_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Args:
@@ -66,6 +74,8 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
                 must be TeamMemberITMPolicy.
             map_sharing: "independent", "shared" or "shared_maps_only" (see above).
             target_claim_timeout: See TargetClaim.
+            stats_map_kwargs: ObstacleMap arguments for the team statistics (see
+                TeamStats); without them, no statistics are kept.
         """
         super().__init__()
         if map_sharing not in MAP_SHARING_MODES:
@@ -78,6 +88,7 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
         # Each robot's generator for the object map's random sampling, set per episode
         self._rngs: Optional[List[np.random.RandomState]] = None
         self._target_claim = TargetClaim(target_claim_timeout)
+        self._team_stats = None if stats_map_kwargs is None else TeamStats(len(robot_policies), stats_map_kwargs)
 
         for robot_id, policy in enumerate(robot_policies):
             policy._robot_id = robot_id
@@ -99,7 +110,14 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
             raise NotImplementedError(f"assigner={policy_config.assigner} is not implemented yet")
         robot_cls = TeamMemberITMPolicy if policy_config.map_sharing != "independent" else HabitatITMPolicyV2
         robot_policies = [robot_cls.from_config(config) for _ in range(policy_config.num_robots)]
-        return cls(robot_policies, policy_config.map_sharing, policy_config.target_claim_timeout)
+        stats_map_kwargs = {
+            "min_height": policy_config.min_obstacle_height,
+            "max_height": policy_config.max_obstacle_height,
+            "agent_radius": policy_config.agent_radius,
+            "area_thresh": policy_config.obstacle_map_area_threshold,
+            "hole_area_thresh": policy_config.hole_area_thresh,
+        }
+        return cls(robot_policies, policy_config.map_sharing, policy_config.target_claim_timeout, stats_map_kwargs)
 
     def act(
         self,
@@ -133,6 +151,9 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
                 xy for r, xy in sorted(self._target_claim.positions.items()) if r != robot
             ]
 
+        if self._team_stats is not None:
+            self._add_view_to_stats(robot, policy, observations)
+        policy._last_mode = None
         action_data = policy.act(observations, rnn_hidden_states, prev_actions, robot_masks, deterministic)
 
         if getattr(policy, "_hw_corruption", False):
@@ -148,18 +169,53 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
         if self._gave_up[robot] and not all(self._gave_up):
             action_data.actions = TorchActionIDs.TURN_LEFT.to(action_data.actions.device)
 
-        if self._shared_object_map and action_data.policy_info:
+        if self._team_stats is not None:
+            mode = policy._last_mode
+            self._team_stats.add_decision(robot, mode, policy._last_frontier if mode == "explore" else None)
+        if action_data.policy_info:
             # Logged in the episode's JSON
-            claim = self._target_claim
-            action_data.policy_info[0]["target_claim_robot"] = -1 if claim.robot is None else claim.robot
-            action_data.policy_info[0]["target_claim_timeouts"] = claim.num_timeouts
+            info = action_data.policy_info[0]
+            if self._shared_object_map:
+                claim = self._target_claim
+                info["target_claim_robot"] = -1 if claim.robot is None else claim.robot
+                info["target_claim_timeouts"] = claim.num_timeouts
+            if self._team_stats is not None:
+                info["team_stats"] = self._team_stats.summary()
+                info["coverage_curve"] = self._team_stats.coverage_curve()
         return action_data
+
+    def _add_view_to_stats(self, robot: int, policy: Any, observations: TensorDict) -> None:
+        """Adds the robot's current view to the team statistics, with the same depth
+        processing and camera pose as the robot's own policy."""
+        depth = observations["depth"][0].cpu().numpy()
+        depth = filter_depth(depth.reshape(depth.shape[:2]), blur_type=None)
+        x, y = observations["gps"][0].cpu().numpy()
+        yaw = observations["compass"][0].cpu().item()
+        tf_camera_to_episodic = xyz_yaw_to_tf_matrix(np.array([x, -y, policy._camera_height]), yaw)
+        try:
+            self._team_stats.add_view(
+                robot,
+                depth,
+                tf_camera_to_episodic,
+                policy._min_depth,
+                policy._max_depth,
+                policy._fx,
+                policy._fy,
+                policy._camera_fov,
+            )
+        except IndexError as e:
+            if is_corrupted_index_error(e):
+                raise  # the run crashes and the episode is rerun
+            # A view reaching past the map's edge: the robot's own policy stops there
+            # too. Leave it out of the statistics.
 
     def _start_episode(self, observations: TensorDict) -> None:
         num_robots = len(self._robot_policies)
         self._needs_reset = [True] * num_robots
         self._gave_up = [False] * num_robots
         self._target_claim.reset()
+        if self._team_stats is not None:
+            self._team_stats.reset()
         if EpisodeSeedSensor.cls_uuid in observations:
             # Each robot draws from its own random stream, which depends only on the
             # episode and the robot, also when the robots share the object map
