@@ -425,8 +425,8 @@ class VLFMConfig:
     lambda_path: float = 1.0
     d_min: float = 2.0  # meters, straight-line distance
     hysteresis_tau: float = 0.1
-    value_scale: float = 0.13
-    path_scale: float = 40.0  # actions
+    value_scale: float = 0.0070  # s_V: median within-step IQR of frontier values (tune split, preliminary)
+    path_scale: float = 11.8  # s_A, actions: same for path costs
     unreachable_penalty: float = 3.0
     info_gain_weight: float = 0.0  # reserved for phase 6
     trajectory_reuse_weight: float = 0.0  # reserved for phase 6
