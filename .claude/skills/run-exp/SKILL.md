@@ -25,7 +25,7 @@ $VLFM_PYTHON scripts/eval_multi_robot.py --method <method> --split <split> --lim
 
 ## 2. 脱离会话运行
 
-1. 复制 `.claude/skills/run-exp/launch_template.sh` 到 `outputs/eval/run_<name>.sh`，填好 `RUNS`（一行一个运行：`名字 方法 划分 额外参数`）。一致性抽查默认 20%（`--dup-fraction 0.2`），不要改小。
+1. 复制 `.claude/skills/run-exp/launch_template.sh` 到 `outputs/eval/run_<name>.sh`，填好 `RUNS`（一行一个运行：`名字 方法 划分 额外参数`）。一致性抽查固定 20%（模板里写死 `--dup-fraction 0.2`）。只有诊断运行（录视频、几个 episode 的快速对比）可以在额外参数里加 `--dup-fraction 0`，并在汇报里说明。
 2. 启动：
    ```bash
    setsid nohup outputs/eval/run_<name>.sh > outputs/eval/run_<name>_driver.log 2>&1 < /dev/null &
