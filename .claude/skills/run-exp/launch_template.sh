@@ -4,6 +4,10 @@
 # "ALL DONE". Fill in RUNS: one line per run, "<name> <method> <split> [extra args and overrides]".
 source ~/yeen/vlfm_env.sh >/dev/null 2>&1
 cd ~/yeen/vlfm || exit 1
+# Started with setsid, so this script leads its own process group: stopping the run is
+# "kill -- -$(cat outputs/eval/run_<name>.pgid)", which reaches the evaluation and the
+# episode processes but nothing outside the group. The model servers are stopped separately.
+echo $$ > "${0%.sh}.pgid"
 RUNS=(
     "NAME METHOD SPLIT"
 )

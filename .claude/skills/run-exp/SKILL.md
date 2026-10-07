@@ -30,7 +30,8 @@ $VLFM_PYTHON scripts/eval_multi_robot.py --method <method> --split <split> --lim
    ```bash
    setsid nohup outputs/eval/run_<name>.sh > outputs/eval/run_<name>_driver.log 2>&1 < /dev/null &
    ```
-3. 几秒后确认 `eval_multi_robot.py` 进程在跑。
+3. 几秒后确认 `eval_multi_robot.py` 进程在跑，并确认 `outputs/eval/run_<name>.pgid` 已写好（脚本启动时记下自己的进程组号）。
+4. 要中途停止：`kill -- -$(cat outputs/eval/run_<name>.pgid)`，停掉整个进程组（驱动脚本、评测、episode 进程），然后 `bash ~/yeen/stop_vlm.sh` 关 server。
 
 ## 3. 监控
 
@@ -70,6 +71,6 @@ end=$(( $(date +%s) + 6600 )); until grep -q "ALL DONE" outputs/eval/run_<name>_
 
 ## 注意事项
 
-- 停止进程时先用 `ps -eo pid,args=` 找到 PID，再 `kill <PID>`。不要用 `pkill -f <模式>`：如果同一条命令里还写着这个脚本名（比如停掉后重新启动），`pkill` 会把执行这条命令的 shell 自己也杀掉。
+- 停止进程用启动时记下的进程组号（`.pgid` 文件）或确切的 PID。不要用 `pkill -f <模式>`：如果同一条命令里还写着这个脚本名（比如停掉后重新启动），`pkill` 会把执行这条命令的 shell 自己也杀掉。
 - 核对进程参数时不要截断命令行（不要 `cut -c1-140`）。曾经把 `--dup-fraction 0.2` 截成 `0`，误以为抽查没开。
 - 驱动脚本被意外停掉、评测进程还在时，不要重启评测。另起一个小脚本等评测进程结束，再关 server、写 "ALL DONE"。
