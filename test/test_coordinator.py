@@ -178,3 +178,48 @@ def test_unreachable_frontiers_are_penalized_and_counted() -> None:
 def test_unknown_assigner_is_rejected() -> None:
     with pytest.raises(ValueError):
         Coordinator(CoordinatorConfig(assigner="vlfm"))
+
+
+# Diagnostics for d_min and tau ------------------------------------------------------
+
+def test_spacing_diagnostics_when_d_min_changes_the_pair() -> None:
+    joint = make("joint")
+    joint.step = 7
+    ask(joint, 0, [A, A_NEAR, FAR], [3.0, 2.9, 2.0])
+    s = joint.stats
+    assert s["pair_decisions"] == 1 and s["spacing_binding"] == 1
+    # Without d_min both would go to A (20 forward actions each). With it one goes to FAR,
+    # just as far but behind it: the extra cost is turning around (180 deg = 6 turns)
+    assert 3 < s["spacing_extra_actions"] < 12
+    assert s["robot_distances"] == [0.5] and s["goal_distances"][0] >= 2.0
+    # Both robots got a frontier at step 7
+    assert sorted(change[1] for change in s["goal_changes"]) == [0, 1]
+    assert all(change[0] == 7 for change in s["goal_changes"])
+
+
+def test_spacing_diagnostics_when_d_min_does_not_matter() -> None:
+    joint = make("joint")
+    joint.poses[1] = (np.array([-4.0, 0.5]), np.pi)  # R2 is next to FAR: each has its own nearest frontier
+    ask(joint, 0, [A, FAR], [3.0, 3.0])
+    assert near(joint.goals[0], A) and near(joint.goals[1], FAR)
+    assert joint.stats["spacing_binding"] == 0 and joint.stats["spacing_extra_actions"] == 0.0
+
+
+def test_fallback_counts() -> None:
+    joint = make("joint")
+    ask(joint, 0, [A, A_NEAR], [3.0, 2.9])  # both within d_min of each other
+    assert joint.stats["spacing_infeasible"] == 1
+    joint = make("joint")
+    ask(joint, 0, [A], [3.0])
+    assert joint.stats["single_frontier"] == 1
+
+
+def test_goal_changes_record_new_goals_only() -> None:
+    joint = make("joint")
+    joint.step = 1
+    ask(joint, 0, [A, FAR], [3.0, 2.9])
+    joint.step = 2
+    ask(joint, 1, [A, FAR], [3.0, 2.9])  # same assignment: nothing new
+    assert len(joint.stats["goal_changes"]) == 2
+    joint.reset()
+    assert joint.stats["goal_changes"] == [] and joint.step == 0

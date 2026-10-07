@@ -102,7 +102,24 @@ class Coordinator:
         self.poses: Dict[int, Tuple[np.ndarray, float]] = {}
         # Each robot's current frontier
         self.goals: Dict[int, Optional[np.ndarray]] = {}
-        self.stats = {"decisions": 0, "switches": 0, "path_costs": 0, "unreachable_paths": 0}
+        # Environment step of the episode, set by the policy; it is the video frame index
+        self.step = 0
+        self.stats: Dict[str, Any] = {
+            "decisions": 0,
+            "switches": 0,
+            "path_costs": 0,
+            "unreachable_paths": 0,
+            # Diagnostics for d_min and tau; they do not affect the choice
+            "pair_decisions": 0,  # joint choices with two robots and two or more frontiers
+            "spacing_binding": 0,  # ... where the best pair without d_min was closer than d_min
+            "spacing_extra_actions": 0.0,  # summed over those: path actions of the chosen pair minus the unconstrained one
+            "spacing_infeasible": 0,  # all allowed frontiers within d_min of each other
+            "single_frontier": 0,  # one allowed frontier, so one robot turns in place
+            "robot_distances": [],  # distance between the robots at each pair decision, m
+            "goal_distances": [],  # distance between their chosen frontiers, m
+            "goal_changes": [],  # [step, robot, x, y] each time a robot's frontier changes
+        }
+        self._actions: Dict[int, np.ndarray] = {}
 
     # Utilities ----------------------------------------------------------------------
 
@@ -117,6 +134,7 @@ class Coordinator:
             self.stats["path_costs"] += len(costs)
             self.stats["unreachable_paths"] += sum(not cost.reachable for cost in costs)
             actions = np.array([cost.actions for cost in costs])
+            self._actions[robot] = actions
             if c.assigner == "greedy":
                 utility = -actions / c.path_scale  # nearest first, values ignored
             else:
@@ -179,6 +197,8 @@ class Coordinator:
         previous = self.goals.get(robot)
         if previous is not None and (goal is None or np.linalg.norm(goal - previous) > SAME_FRONTIER_DISTANCE):
             self.stats["switches"] += 1
+        if goal is not None and (previous is None or np.linalg.norm(goal - previous) > SAME_FRONTIER_DISTANCE):
+            self.stats["goal_changes"].append([self.step, robot, round(float(goal[0]), 2), round(float(goal[1]), 2)])
         self.goals[robot] = None if goal is None else np.array(goal)
 
     def _choose_single(self, robot: int, frontiers: np.ndarray, utility: np.ndarray, avoid: List[np.ndarray]) -> None:
@@ -208,14 +228,18 @@ class Coordinator:
         candidates = np.flatnonzero(allowed)
         if len(candidates) == 1:
             # One frontier: the robot that values it more goes; the other turns in place
+            self.stats["single_frontier"] += 1
             only = int(candidates[0])
             return {r1: only, r2: None} if u1[only] >= u2[only] else {r1: None, r2: only}
         distance = np.linalg.norm(frontiers[:, None] - frontiers[None], axis=2)
         total = u1[:, None] + u2[None, :]
         feasible = (distance >= self.config.d_min) & np.isfinite(total)
+        self.stats["pair_decisions"] += 1
         if feasible.any():
             i, j = np.unravel_index(np.argmax(np.where(feasible, total, -np.inf)), total.shape)
+            self._log_spacing(robots, total, distance, int(i), int(j))
             return {r1: int(i), r2: int(j)}
+        self.stats["spacing_infeasible"] += 1
         # All frontiers within d_min of each other: the robot with the better option takes
         # it, the other takes its own best of the rest
         if u1.max() >= u2.max():
@@ -226,6 +250,19 @@ class Coordinator:
         rest = u_second.copy()
         rest[taken] = -np.inf
         return {first: taken, second: int(np.argmax(rest))}
+
+    def _log_spacing(self, robots: List[int], total: np.ndarray, distance: np.ndarray, i: int, j: int) -> None:
+        """Whether d_min changed the best pair, and what it cost in path actions."""
+        r1, r2 = robots
+        free_i, free_j = np.unravel_index(np.argmax(total), total.shape)
+        if distance[free_i, free_j] < self.config.d_min and r1 in self._actions and r2 in self._actions:
+            self.stats["spacing_binding"] += 1
+            chosen = self._actions[r1][i] + self._actions[r2][j]
+            free = self._actions[r1][free_i] + self._actions[r2][free_j]
+            self.stats["spacing_extra_actions"] += round(float(chosen - free), 2)
+        if r1 in self.poses and r2 in self.poses:
+            self.stats["robot_distances"].append(round(float(np.linalg.norm(self.poses[r1][0] - self.poses[r2][0])), 2))
+        self.stats["goal_distances"].append(round(float(distance[i, j]), 2))
 
     def _choose_joint(
         self, robots: List[int], frontiers: np.ndarray, utility: Dict[int, np.ndarray], avoid: List[np.ndarray]

@@ -134,6 +134,7 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
         self._shared_maps = map_sharing != "independent"
         self._shared_object_map = map_sharing == "shared"
         self._needs_reset = [False] * len(robot_policies)
+        self._env_step = 0
         self._gave_up = [False] * len(robot_policies)
         # Each robot's generator for the object map's random sampling, set per episode
         self._rngs: Optional[List[np.random.RandomState]] = None
@@ -231,6 +232,7 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
             if "compass" in observations:
                 pose = (np.array([x, -y]), float(observations["compass"][0].cpu().item()))
         if self._coordinator is not None:
+            self._coordinator.step = self._env_step
             if pose is not None:
                 self._coordinator.poses[robot] = pose
             policy._team_status = self._team_status(robot)
@@ -243,6 +245,7 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
             self._add_view_to_stats(robot, policy, observations)
         policy._last_mode = None
         action_data = policy.act(observations, rnn_hidden_states, prev_actions, robot_masks, deterministic)
+        self._env_step += 1
 
         if getattr(policy, "_hw_corruption", False):
             # The step hit corrupted memory. Let the STOP through: the episode ends
@@ -273,7 +276,7 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
                 info["team_stats"] = self._team_stats.summary()
                 info["coverage_curve"] = self._team_stats.coverage_curve()
             if self._coordinator is not None:
-                info["coordinator"] = dict(self._coordinator.stats)
+                info["coordinator"] = {k: list(v) if isinstance(v, list) else v for k, v in self._coordinator.stats.items()}
             if self._scale_log is not None:
                 info["utility_scales"] = self._scale_log.summary()
         return action_data
@@ -331,6 +334,7 @@ class HabitatMultiRobotITMPolicy(BasePolicy):
         num_robots = len(self._robot_policies)
         self._needs_reset = [True] * num_robots
         self._gave_up = [False] * num_robots
+        self._env_step = 0  # steps of the episode, both robots together (one video frame each)
         self._target_claim.reset()
         for policy in self._robot_policies:
             policy._last_mode = None  # not the previous episode's, for the teammates' view
