@@ -142,6 +142,16 @@ def test_values_in_order_and_scale_log() -> None:
     summary = log.summary()
     assert summary["frontiers"] == 3 and summary["unreachable"] == 1
     assert summary["value_p50"] == pytest.approx(0.5) and summary["actions_p50"] == pytest.approx(20.0)
+    # Only two reachable frontiers: too few for a spread
+    assert summary["step_iqrs"] == []
+
+    log.add([0.1, 0.2, 0.3, 0.4, 0.5], [PathCost(a, True, int(a), 0) for a in (10.0, 20.0, 30.0, 40.0, 50.0)])
+    log.add([0.1, 0.2], [PathCost(10.0, True, 10, 0), PathCost(20.0, True, 20, 0)])  # too few frontiers
+    frontiers, value_iqr, actions_iqr = log.summary()["step_iqrs"][0]
+    assert len(log.summary()["step_iqrs"]) == 1
+    assert frontiers == 5 and value_iqr == pytest.approx(0.2) and actions_iqr == pytest.approx(20.0)
+    log.reset()
+    assert log.summary()["step_iqrs"] == []
 
 
 def test_ground_truth_detector_is_reserved() -> None:

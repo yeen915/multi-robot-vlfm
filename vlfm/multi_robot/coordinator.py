@@ -260,9 +260,22 @@ def values_in_order(sorted_frontiers: np.ndarray, sorted_values: Sequence[float]
     return values
 
 
+def iqr(samples: Sequence[float]) -> float:
+    q25, q75 = np.percentile(np.asarray(samples, dtype=float), [25, 75])
+    return float(q75 - q25)
+
+
 class UtilityScaleLog:
     """Values and path costs of all frontiers seen at exploration steps, to set the
-    utility's fixed scales (value_scale, path_scale) from real runs."""
+    utility's fixed scales (value_scale, path_scale) from real runs.
+
+    Besides the pooled percentiles, it keeps the spread within each step: the
+    interquartile range of the values and of the (reachable) path costs among the
+    frontiers the robot chose from. The scales are the median of these over all steps
+    with at least MIN_FRONTIERS frontiers, so that V / s_V and A / s_A vary by similar
+    amounts between the frontiers of one decision (design doc 3.4)."""
+
+    MIN_FRONTIERS = 3
 
     def __init__(self) -> None:
         self.reset()
@@ -271,11 +284,15 @@ class UtilityScaleLog:
         self._values: List[float] = []
         self._actions: List[float] = []
         self._unreachable = 0
+        self._step_iqrs: List[List[float]] = []  # [frontiers, IQR of V, IQR of A] per step
 
     def add(self, values: Sequence[float], costs: Sequence[Any]) -> None:
         self._values.extend(float(v) for v in values)
-        self._actions.extend(float(c.actions) for c in costs if c.reachable)
+        reachable = [float(c.actions) for c in costs if c.reachable]
+        self._actions.extend(reachable)
         self._unreachable += sum(not c.reachable for c in costs)
+        if len(values) >= self.MIN_FRONTIERS and len(reachable) >= self.MIN_FRONTIERS:
+            self._step_iqrs.append([len(values), round(iqr(values), 6), round(iqr(reachable), 4)])
 
     def summary(self) -> Dict[str, float]:
         def percentiles(name: str, samples: List[float]) -> Dict[str, float]:
@@ -288,4 +305,5 @@ class UtilityScaleLog:
             "unreachable": self._unreachable,
             **percentiles("value", self._values),
             **percentiles("actions", self._actions),
+            "step_iqrs": self._step_iqrs,
         }
