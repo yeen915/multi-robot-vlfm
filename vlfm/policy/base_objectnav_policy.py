@@ -424,7 +424,7 @@ class VLFMConfig:
     # 0.133 over 3989 steps of single-robot logs; s_A: a typical 8 m path).
     lambda_path: float = 1.0
     d_min: float = 2.0  # meters, straight-line distance
-    hysteresis_tau: float = 0.1
+    hysteresis_tau: float = 0.5
     value_scale: float = 0.0070  # s_V: median within-step IQR of frontier values (tune split, preliminary)
     path_scale: float = 11.8  # s_A, actions: same for path costs
     unreachable_penalty: float = 3.0

@@ -39,7 +39,7 @@ class CoordinatorConfig:
     assigner: str = "joint"
     lambda_path: float = 1.0
     d_min: float = 2.0  # meters, straight-line distance between two robots' frontiers
-    hysteresis_tau: float = 0.1
+    hysteresis_tau: float = 0.5
     value_scale: float = 0.0070  # s_V
     path_scale: float = 11.8  # s_A, in actions
     unreachable_penalty: float = 3.0

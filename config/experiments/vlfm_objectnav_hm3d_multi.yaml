@@ -37,7 +37,7 @@ habitat_baselines:
       # Coordinator (assigner other than "vlfm"); provisional values, see VLFMConfig
       lambda_path: 1.0
       d_min: 2.0
-      hysteresis_tau: 0.1
+      hysteresis_tau: 0.5  # set 2026-10-07 from 5 dev episodes; fixed during the lambda sweep
       value_scale: 0.0070  # median within-step IQRs, tune split 2026-10-07 (preliminary)
       path_scale: 11.8
       unreachable_penalty: 3.0
