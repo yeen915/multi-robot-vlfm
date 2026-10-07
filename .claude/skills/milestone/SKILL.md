@@ -42,8 +42,10 @@ git diff --cached --stat
 # 大文件：新增或修改的文件超过 1 MB
 git diff --name-only backup/multi-robot..HEAD | xargs -r ls -la 2>/dev/null | awk '$5 > 1000000'
 git ls-files --others --exclude-standard | xargs -r ls -la 2>/dev/null | awk '$5 > 1000000'
-# 密钥和认证信息
-git diff backup/multi-robot..HEAD | grep -niE "BEGIN [A-Z ]*PRIVATE KEY|ssh-(rsa|ed25519) AAAA|api[_-]?key|token|password|secret|tskey-" | head
+# 密钥和认证信息：只看新增的行（以 + 开头，去掉 +++ 文件头）。关键词要整词出现并紧跟 = 或 :，
+# 所以 tokenizer、num_tokens、secret_sauce 这类正常代码不会命中
+git diff backup/multi-robot..HEAD | grep -E '^\+' | grep -vE '^\+\+\+ ' | grep -niE \
+  'BEGIN [A-Z ]*PRIVATE KEY|ssh-(rsa|ed25519|ecdsa)[a-z0-9-]* AAAA|tskey-[a-z]+-|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_|AKIA[0-9A-Z]{16}|login\.tailscale\.com/a/|\b(api[_-]?key|access[_-]?token|auth[_-]?token|token|password|passwd|secret)\b"?\s*[:=]\s*[^[:space:]]{8,}' | head
 ```
 
 - 不能进仓库：`docs/` 里的 CoRelNav PDF、`lockfiles/`、权重、视频、场景数据、日志、`outputs/`，以及 `~/yeen/.ssh`、`~/yeen/tailscale/state` 里的任何东西。
